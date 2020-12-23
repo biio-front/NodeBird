@@ -6,9 +6,9 @@ export const initialState = {
   loginError: null,
   logOutLoading: false, // 로그아웃 시도 중
   logOutError: null,
-  signupLoading: false, // 회원가입 시도 중
-  signupDone: false,
-  signupError: null,
+  signUpLoading: false, // 회원가입 시도 중
+  signUpDone: false,
+  signUpError: null,
   changeNicknameLoading: false, // 닉네임 변경 시도 중
   changeNicknameDone: false,
   changeNicknameError: null,
@@ -121,12 +121,12 @@ const reducer = (state = initialState, action) => {
       }
       case SIGN_UP_REQUEST: {
         draft.signUpLoading = true;
-        draft.signupDone = false;
+        draft.signUpDone = false;
         draft.signUpError = null;
         break;
       }
       case SIGN_UP_SUCCESS: {
-        draft.signupDone = true;
+        draft.signUpDone = true;
         draft.signUpLoading = false;
         break;
       }
