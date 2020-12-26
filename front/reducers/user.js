@@ -45,15 +45,6 @@ export const UNFOLLOW_FAILURE = 'UNFOLLOW_FAILURE';
 export const ADD_POST_TO_ME = 'ADD_POST_TO_ME';
 export const REMOVE_POST_OF_ME = 'REMOVE_POST_OF_ME';
 
-const dummyUser = (data) => ({
-  ...data,
-  nickname: '비오',
-  id: 'a2',
-  Posts: [],
-  Followings: [{ nickname: '제로초' }, { nickname: '정어리' }],
-  Followers: [{ nickname: '제로초' }, { nickname: '정어리' }],
-});
-
 export const loginAction = (data) => {
   return {
     type: LOG_IN_REQUEST,
@@ -95,7 +86,7 @@ const reducer = (state = initialState, action) => {
       case LOG_IN_SUCCESS: {
         draft.loginLoading = false;
         draft.isLoggedIn = true;
-        draft.currentUser = dummyUser(action.data);
+        draft.currentUser = action.data;
         break;
       }
       case LOG_IN_FAILURE: {

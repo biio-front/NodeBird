@@ -18,18 +18,16 @@ import {
   UNFOLLOW_SUCCESS,
 } from '../reducers/user';
 
-// function logInAPI(data) {
-//   return axios.post('/api/logIn', data);
-// }
+function logInAPI(data) {
+  return axios.post('/user/login', data);
+}
 
 function* logIn(action) {
   try {
-    // const result = yield call(logInAPI, action.data);
-    // 지금은 서버가 없으니까 딜레이로 비동기 효과를 줘보자^^
-    yield delay(1000);
+    const result = yield call(logInAPI, action.data);
     yield put({
       type: LOG_IN_SUCCESS,
-      data: action.data,
+      data: result.data,
     });
   } catch (error) {
     yield put({
@@ -39,15 +37,15 @@ function* logIn(action) {
   }
 }
 
-// function logOutAPI() {
-//   return axios.post('/api/logOut');
-// }
+function logOutAPI() {
+  return axios.post('/user/logOut');
+}
 function* logOut() {
   try {
-    // const result = yield call(logOutAPI);
-    yield delay(1000);
+    const result = yield call(logOutAPI);
     yield put({
       type: LOG_OUT_SUCCESS,
+      data: result.data,
     });
   } catch (error) {
     yield put({
@@ -58,7 +56,7 @@ function* logOut() {
 }
 
 function signUptAPI(data) {
-  return axios.post('http://localhost:3065/user', data);
+  return axios.post('/user', data);
 }
 function* signUp(action) {
   try {
