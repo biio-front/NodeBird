@@ -23,17 +23,23 @@ function logInAPI(data) {
 }
 
 function* logIn(action) {
+  console.log('request');
   try {
+    console.log('loading');
     const result = yield call(logInAPI, action.data);
     yield put({
       type: LOG_IN_SUCCESS,
       data: result.data,
     });
+    console.log('success');
   } catch (error) {
+    console.log('catch');
+    console.error(error);
     yield put({
       type: LOG_IN_FAILURE,
       error: error.response.data,
     });
+    console.log('fail');
   }
 }
 
@@ -48,6 +54,7 @@ function* logOut() {
       data: result.data,
     });
   } catch (error) {
+    console.error(error);
     yield put({
       type: LOG_OUT_FAILURE,
       error: error.response.data,
@@ -66,6 +73,7 @@ function* signUp(action) {
       type: SIGN_UP_SUCCESS,
     });
   } catch (error) {
+    console.error(error);
     yield put({
       type: SIGN_UP_FAILURE,
       error: error.response.data,
@@ -85,6 +93,7 @@ function* follow(action) {
       data: action.data,
     });
   } catch (error) {
+    console.error(error);
     yield put({
       type: FOLLOW_FAILURE,
       error: error.response.data,
@@ -103,6 +112,7 @@ function* unfollow(action) {
       data: action.data,
     });
   } catch (error) {
+    console.error(error);
     yield put({
       type: UNFOLLOW_FAILURE,
       error: error.response.data,

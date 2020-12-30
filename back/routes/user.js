@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const { User } = require('../models');
 const passport = require('passport');
+const db = require('../models');
 
 router.post('/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
@@ -10,7 +11,7 @@ router.post('/login', (req, res, next) => {
       console.error(err);
       return next(err);
     }
-    if(info) {
+    if (info) {
       return res.status(401).send(info.reason);
     }
     return req.login(user, async (loginErr) => {
@@ -18,7 +19,22 @@ router.post('/login', (req, res, next) => {
         console.err(loginErr);
         return next(loginErr);
       }
-      return res.status(200).json(user);
+      const fullUserWithoutPassword = await User.findOne({
+        where: { id: user.id },
+        attributes: { 
+          exclude: ['password'] 
+        },
+        include: [{
+          model: db.Post,
+        }, {
+          model: db.User,
+          as: 'Followings',
+        }, {
+          model: db.User,
+          as: 'Followers', // 모델에서 as 사용했으면 똑같은 이름으로 as사용.
+        }]
+      })
+      return res.status(200).json(fullUserWithoutPassword);
     })
   })(req, res, next);
 });
