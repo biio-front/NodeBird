@@ -8,11 +8,7 @@ import FollowList from '../components/FollowList';
 const profile = () => {
   const { currentUser } = useSelector((state) => state.user);
 
-  useEffect(() => {
-    if (!currentUser?.id) {
-      Router.push('/');
-    }
-  }, [currentUser?.id]);
+  useEffect(() => !currentUser?.id && Router.push('/'), [currentUser?.id]);
 
   if (!currentUser) return null;
   return (

@@ -47,25 +47,6 @@ export const generateDummyPost = (number) =>
       ],
     }));
 
-const dummyPost = (data) => ({
-  id: data.id,
-  User: {
-    id: 'a2',
-    nickname: '비오',
-  },
-  Images: [],
-  content: data.content,
-  Comments: [],
-});
-
-const dummyComment = (data) => ({
-  User: {
-    id: data.userId,
-    nickname: '비오',
-  },
-  content: data.comment,
-});
-
 export const LOAD_POSTS_REQUEST = 'LOAD_POSTS_REQUEST';
 export const LOAD_POSTS_SUCCESS = 'LOAD_POSTS_SUCCESS';
 export const LOAD_POSTS_FAILURE = 'LOAD_POSTS_FAILURE';
@@ -126,7 +107,7 @@ const reducer = (state = initialState, action) => {
         break;
       }
       case ADD_POST_SUCCESS: {
-        draft.mainPosts.unshift(dummyPost(action.data));
+        draft.mainPosts.unshift(action.data);
         draft.addPostLoading = false;
         draft.addPostDone = true;
         break;
@@ -160,8 +141,8 @@ const reducer = (state = initialState, action) => {
         break;
       }
       case ADD_COMMENT_SUCCESS: {
-        const post = draft.mainPosts.find((v) => v.id === action.data.postId);
-        post.Comments.unshift(dummyComment(action.data));
+        const post = draft.mainPosts.find((v) => v.id === action.data.PostId);
+        post.Comments.unshift(action.data);
         draft.addCommentLoading = false;
         draft.addCommentDone = true;
         break;

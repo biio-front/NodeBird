@@ -23,28 +23,23 @@ function logInAPI(data) {
 }
 
 function* logIn(action) {
-  console.log('request');
   try {
-    console.log('loading');
     const result = yield call(logInAPI, action.data);
     yield put({
       type: LOG_IN_SUCCESS,
       data: result.data,
     });
-    console.log('success');
   } catch (error) {
-    console.log('catch');
     console.error(error);
     yield put({
       type: LOG_IN_FAILURE,
       error: error.response.data,
     });
-    console.log('fail');
   }
 }
 
 function logOutAPI() {
-  return axios.post('/user/logOut');
+  return axios.post('/user/logout');
 }
 function* logOut() {
   try {
