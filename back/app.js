@@ -2,21 +2,24 @@ const express = require('express');
 const cors = require('cors');
 const userRouter = require('./routes/user');
 const postRouter = require('./routes/post');
+const postsRouter = require('./routes/posts');
 const db = require('./models');
 const passportConfig = require('./passport');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const passport = require('passport');
 const dotenv = require('dotenv');
-
-dotenv.config();
+const morgan = require('morgan');
 const app = express();
 
+dotenv.config();
+
 db.sequelize.sync()
-.then(() => {console.log('db 연결 성공');})
+.then(() => console.log('db 연결 성공'))
 .catch(console.error);
 passportConfig();
 
+app.use(morgan('dev'));
 app.use(cors({
   origin: 'http://localhost:3060',
   credentials: true
@@ -42,6 +45,7 @@ app.get('/', (req, res) => {
 
 app.use('/user', userRouter);
 app.use('/post', postRouter);
+app.use('/posts', postsRouter);
 
 app.listen(3065, () => {
   console.log('서버 실행 중');

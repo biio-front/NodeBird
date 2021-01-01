@@ -16,8 +16,13 @@ router.post('/', async (req, res, next) => {
         model: Image,
       }, {
         model: Comment,
+        include: [{
+          model: User,
+          include: ['id', 'nickname'],
+        }]
       }, {
         model: User,
+        include: ['id', 'nickname'],
       }]
     })
     res.status(201).json(fullPost);
@@ -34,11 +39,18 @@ router.delete('/', (req, res) => {
 router.post('/:postId/comment', isLoggedIn, async (req, res, next) => {
   try {
     const comment = await Comment.create({
-      content: req.body.Comment,
-      PostId: req.params.postId,
+      content: req.body.comment,
+      PostId: parseInt(req.params.postId, 10),
       UserId: req.user.id,
     });
-    res.status(201).json(comment);
+    const fullComment = await Comment.findOne({
+      where: { id: comment.id },
+      include: [{
+        model: User,
+        attributes: ['id', 'nickname'],
+      }]
+    })
+    res.status(201).json(fullComment);
   } catch (error) {
     console.error(error);
     next(error);

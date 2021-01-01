@@ -22,7 +22,6 @@ const PostCard = ({ post }) => {
   const { removePostLoading } = useSelector((state) => state.post);
   const dispatch = useDispatch();
   const id = currentUser?.id;
-  // currentUser?.id 는  currentUser && currentUser.id랑 똑같은 문법^^! 옵셔널 체이닝 연산자
   const [liked, setLiked] = useState(false);
   const [commentFormOpen, setCommentFormOpen] = useState(false);
 
@@ -32,7 +31,6 @@ const PostCard = ({ post }) => {
   const onToggleComment = useCallback(() => {
     setCommentFormOpen((prev) => !prev);
   }, []);
-
   const onDeletePost = useCallback(() => {
     const { id: postId } = post;
     dispatch(removePost(postId));
@@ -84,7 +82,7 @@ const PostCard = ({ post }) => {
       </Card>
       {commentFormOpen && (
         <>
-          <CommentForm post={post} id={id} />
+          <CommentForm postId={post.id} />
           <List
             header={`${post.Comments.length}개의 댓글`}
             itemLayout="horizontal"
@@ -106,9 +104,9 @@ const PostCard = ({ post }) => {
 };
 PostCard.propTypes = {
   post: PropTypes.shape({
-    id: PropTypes.string,
+    id: PropTypes.number,
     User: PropTypes.shape({
-      id: PropTypes.string,
+      id: PropTypes.number,
       nickname: PropTypes.string,
     }),
     content: PropTypes.string,
@@ -121,7 +119,7 @@ PostCard.propTypes = {
       }),
     ),
     Images: PropTypes.arrayOf(PropTypes.object),
-    createdAt: PropTypes.object,
+    createdAt: PropTypes.string,
   }).isRequired,
 };
 

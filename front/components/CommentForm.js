@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import useInput from '../hooks/useInput';
 import { addComment } from '../reducers/post';
 
-const CommentForm = ({ post, id }) => {
+const CommentForm = ({ postId }) => {
   const { addCommentDone, addCommentLoading } = useSelector((state) => state.post);
   const dispatch = useDispatch();
   const [commentText, onChangeCommentText, setcommentText] = useInput('');
@@ -19,8 +19,7 @@ const CommentForm = ({ post, id }) => {
   const onSubmitComment = useCallback(() => {
     const data = {
       comment: commentText,
-      postId: post.id,
-      userId: id,
+      postId,
     };
     dispatch(addComment(data));
   }, [commentText]);
@@ -36,10 +35,8 @@ const CommentForm = ({ post, id }) => {
     </Form>
   );
 };
+
 CommentForm.propTypes = {
-  post: PropTypes.shape({
-    id: PropTypes.number,
-  }).isRequired,
-  id: PropTypes.number.isRequired,
+  postId: PropTypes.number.isRequired,
 };
 export default CommentForm;
