@@ -38,17 +38,15 @@ function* loadPosts() {
 }
 
 function addPostAPI(data) {
-  return axios.post('/post', { content: data });
+  return axios.post('/post', { content: data }, { withCredentials: true });
 }
 function* addPost(action) {
   try {
     const result = yield call(addPostAPI, action.data);
+    console.log(result.data);
     yield put({
       type: ADD_POST_SUCCESS,
-      data: {
-        content: result.data,
-        id: result.data.id,
-      },
+      data: result.data,
     });
     yield put({
       type: ADD_POST_TO_ME,

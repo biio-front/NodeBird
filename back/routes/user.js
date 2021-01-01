@@ -6,6 +6,37 @@ const passport = require('passport');
 const db = require('../models');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 
+router.get('/', async (req, res, next) => {
+  try {
+    if (req.user) {
+      const fullUserWithoutPassword = await User.findOne({
+        where: { id: req.user.id },
+        attributes: { 
+          exclude: ['password'] ,
+        },
+        include: [{
+          model: db.Post,
+          attributes: ['id'],
+        }, {
+          model: db.User,
+          as: 'Followings',
+          attributes: ['id'],
+        }, {
+          model: db.User,
+          as: 'Followers', 
+          attributes: ['id'],
+        }]
+      })
+      res.status(200).json(fullUserWithoutPassword);
+    } else {
+      res.status(200).json(null);
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
 router.post('/login', isNotLoggedIn, (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) {
@@ -19,21 +50,25 @@ router.post('/login', isNotLoggedIn, (req, res, next) => {
       if (loginErr) {
         console.err(loginErr);
         return next(loginErr);
+
       }
       const fullUserWithoutPassword = await User.findOne({
-        where: { id: user.id },
+        where: { id: req.user.id },
         attributes: { 
           exclude: ['password'] 
         },
         include: [{
           model: db.Post,
+          attributes: ['id'],
         }, {
           model: db.User,
           as: 'Followings',
+          attributes: ['id'],
         }, {
           model: db.User,
-          as: 'Followers', // 모델에서 as 사용했으면 똑같은 이름으로 as사용.
-        }]
+          as: 'Followers', 
+          attributes: ['id'],
+        }] // 모델에서 as 사용했으면 똑같은 이름으로 as사용.
       })
       return res.status(200).json(fullUserWithoutPassword);
     })

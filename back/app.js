@@ -18,7 +18,8 @@ db.sequelize.sync()
 passportConfig();
 
 app.use(cors({
-  origin: '*',
+  origin: 'http://localhost:3060',
+  credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
@@ -27,6 +28,10 @@ app.use(session({
   saveUninitialized: false,
   resave: false,
   secret: process.env.COOKIE_SECRET,
+  cookie: {
+    httpOnly: true,
+    secure: false,
+  }
 }));
 app.use(passport.initialize());
 app.use(passport.session());

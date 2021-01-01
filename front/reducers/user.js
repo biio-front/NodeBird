@@ -22,7 +22,9 @@ export const initialState = {
   signUpData: {},
   loginData: {},
 };
-
+export const LOAD_MY_INFO_REQUEST = 'LOAD_MY_INFO_REQUEST';
+export const LOAD_MY_INFO_SUCCESS = 'LOAD_MY_INFO_SUCCESS';
+export const LOAD_MY_INFO_FAILURE = 'LOAD_MY_INFO_FAILURE';
 export const LOG_IN_REQUEST = 'LOG_IN_REQUEST';
 export const LOG_IN_SUCCESS = 'LOG_IN_SUCCESS';
 export const LOG_IN_FAILURE = 'LOG_IN_FAILURE';
@@ -45,6 +47,9 @@ export const UNFOLLOW_FAILURE = 'UNFOLLOW_FAILURE';
 export const ADD_POST_TO_ME = 'ADD_POST_TO_ME';
 export const REMOVE_POST_OF_ME = 'REMOVE_POST_OF_ME';
 
+export const loadMyInfo = () => {
+  return { type: LOAD_MY_INFO_REQUEST };
+};
 export const loginAction = (data) => {
   return {
     type: LOG_IN_REQUEST,
@@ -78,6 +83,22 @@ export const unFollowAction = (data) => {
 const reducer = (state = initialState, action) => {
   return produce(state, (draft) => {
     switch (action.type) {
+      case LOAD_MY_INFO_REQUEST: {
+        draft.loadMyInfoLoading = true;
+        draft.loadMyInfoError = null;
+        break;
+      }
+      case LOAD_MY_INFO_SUCCESS: {
+        draft.loadMyInfoLoading = false;
+        draft.isLoggedIn = true;
+        draft.currentUser = action.data;
+        break;
+      }
+      case LOAD_MY_INFO_FAILURE: {
+        draft.loadMyInfoLoading = false;
+        draft.loadMyInfoError = action.error;
+        break;
+      }
       case LOG_IN_REQUEST: {
         draft.loginLoading = true;
         draft.loginError = null;

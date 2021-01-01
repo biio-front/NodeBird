@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import PostCard from '../components/PostCard';
 import PostForm from '../components/PostForm';
 import { loadPosts } from '../reducers/post';
+import { loadMyInfo } from '../reducers/user';
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -11,8 +12,10 @@ const Home = () => {
     (state) => state.post,
   );
 
-  // 처음 목록 불러오기
   useEffect(() => {
+    // 로그인한 사용자 정보 불러오기
+    dispatch(loadMyInfo());
+    // 처음 목록 불러오기
     dispatch(loadPosts());
   }, []);
 
