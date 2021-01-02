@@ -22,7 +22,11 @@ router.get('/', async (req, res, next) => {
           model: User,
           attributes: ['id', 'nickname'],
         }],
-      }],
+      }, {
+        model: User,
+        as: 'Likers',
+        attributes: ['id'],
+      }]
     });
     res.status(200).json(posts);
   } catch (error) {

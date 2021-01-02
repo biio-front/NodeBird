@@ -14,25 +14,27 @@ import Avatar from 'antd/lib/avatar/avatar';
 import PostImages from './PostImages';
 import CommentForm from './CommentForm';
 import PostCardContent from './PostCardContent';
-import { removePost } from '../reducers/post';
+import { likePost, removePost, unlikePost } from '../reducers/post';
 import FollowButton from './FollowButton';
 
 const PostCard = ({ post }) => {
   const { currentUser } = useSelector((state) => state.user);
   const { removePostLoading } = useSelector((state) => state.post);
   const dispatch = useDispatch();
-  const id = currentUser?.id;
-  const [liked, setLiked] = useState(false);
-  const [commentFormOpen, setCommentFormOpen] = useState(false);
 
-  const onToggleLike = useCallback(() => {
-    setLiked((prev) => !prev);
-  }, []);
+  const id = currentUser?.id;
+  const [commentFormOpen, setCommentFormOpen] = useState(false);
+  const liked = post.Likers.find((v) => v === id);
+  const postId = post.id;
+
+  const onToggleLike = useCallback(
+    () => dispatch(liked ? unlikePost(postId) : likePost(postId)),
+    [liked],
+  );
   const onToggleComment = useCallback(() => {
     setCommentFormOpen((prev) => !prev);
   }, []);
   const onDeletePost = useCallback(() => {
-    const { id: postId } = post;
     dispatch(removePost(postId));
   }, []);
 
@@ -72,7 +74,7 @@ const PostCard = ({ post }) => {
             <EllipsisOutlined />
           </Popover>,
         ]}
-        extra={id && <FollowButton post={post} />}
+        extra={id && post.User.id !== id && <FollowButton post={post} />}
       >
         <Card.Meta
           avatar={<Avatar>{post.User.nickname[0]}</Avatar>}
@@ -119,6 +121,7 @@ PostCard.propTypes = {
       }),
     ),
     Images: PropTypes.arrayOf(PropTypes.object),
+    Likers: PropTypes.array,
     createdAt: PropTypes.string,
   }).isRequired,
 };

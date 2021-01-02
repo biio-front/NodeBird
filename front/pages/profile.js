@@ -1,14 +1,20 @@
 import Head from 'next/head';
 import React, { useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Router from 'next/router';
 import NicknameEditForm from '../components/NicknameEditForm';
 import FollowList from '../components/FollowList';
+import { loadFollowersAction, loadFollowingsAction } from '../reducers/user';
 
 const profile = () => {
   const { currentUser } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
 
   useEffect(() => !currentUser?.id && Router.push('/'), [currentUser?.id]);
+  useEffect(() => {
+    dispatch(loadFollowersAction());
+    dispatch(loadFollowingsAction());
+  }, []);
 
   if (!currentUser) return null;
   return (
