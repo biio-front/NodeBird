@@ -16,12 +16,15 @@ export const initialState = {
   addCommentLoading: false, // 댓글 불러오는 중
   addCommentDone: false,
   addCommentError: null,
-  likePostLoading: false, // 포스트 삭제 중
+  likePostLoading: false, //  좋아요 중
   likePostDone: false,
   likePostError: null,
-  unlikePostLoading: false, // 포스트 삭제 중
+  unlikePostLoading: false, //  좋아요취소 중
   unlikePostDone: false,
   unlikePostError: null,
+  uploadImagesLoading: false, // 이미지 업로드 중
+  uploadImagesDone: false,
+  uploadImagesError: null,
 };
 
 export const LOAD_POSTS_REQUEST = 'LOAD_POSTS_REQUEST';
@@ -42,6 +45,10 @@ export const LIKE_POST_FAILURE = 'LIKE_POST_FAILURE';
 export const UNLIKE_POST_REQUEST = 'UNLIKE_POST_REQUEST';
 export const UNLIKE_POST_SUCCESS = 'UNLIKE_POST_SUCCESS';
 export const UNLIKE_POST_FAILURE = 'UNLIKE_POST_FAILURE';
+export const UPLOAD_IMAGES_REQUEST = 'UPLOAD_IMAGES_REQUEST';
+export const UPLOAD_IMAGES_SUCCESS = 'UPLOAD_IMAGES_SUCCESS';
+export const UPLOAD_IMAGES_FAILURE = 'UPLOAD_IMAGES_FAILURE';
+export const REMOVE_IMAGE = 'REMOVE_IMAGE';
 
 export const loadPosts = () => ({
   type: LOAD_POSTS_REQUEST,
@@ -72,6 +79,16 @@ export const unlikePost = (data) => ({
   data,
 });
 
+export const uploadImages = (data) => ({
+  type: UPLOAD_IMAGES_REQUEST,
+  data,
+});
+
+export const removeImage = (data) => ({
+  type: REMOVE_IMAGE,
+  data,
+});
+
 const reducer = (state = initialState, action) => {
   return produce(state, (draft) => {
     switch (action.type) {
@@ -97,6 +114,7 @@ const reducer = (state = initialState, action) => {
         draft.addPostLoading = true;
         draft.addPostDone = false;
         draft.addPostError = null;
+        draft.imagePaths = [];
         break;
       }
       case ADD_POST_SUCCESS: {
@@ -179,6 +197,27 @@ const reducer = (state = initialState, action) => {
       case UNLIKE_POST_FAILURE: {
         draft.unlikePostLoading = false;
         draft.unlikePostError = action.error;
+        break;
+      }
+      case UPLOAD_IMAGES_REQUEST: {
+        draft.uploadImagesLoading = true;
+        draft.uploadImagesDone = false;
+        draft.uploadImagesError = null;
+        break;
+      }
+      case UPLOAD_IMAGES_SUCCESS: {
+        draft.uploadImagesLoading = false;
+        draft.uploadImagesDone = true;
+        draft.imagePaths = action.data;
+        break;
+      }
+      case UPLOAD_IMAGES_FAILURE: {
+        draft.uploadImagesLoading = false;
+        draft.uploadImagesError = action.error;
+        break;
+      }
+      case REMOVE_IMAGE: {
+        draft.imagePaths = draft.imagePaths.filter((v, i) => i !== action.data);
         break;
       }
       default:

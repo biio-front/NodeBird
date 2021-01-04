@@ -2,7 +2,7 @@ import { Button, Form, Input } from 'antd';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import useInput from '../hooks/useInput';
-import { addPost } from '../reducers/post';
+import { addPost, removeImage, uploadImages } from '../reducers/post';
 
 const PostForm = () => {
   const { imagePaths, addPostDone } = useSelector((state) => state.post);
@@ -22,8 +22,31 @@ const PostForm = () => {
   }, [addPostDone]);
 
   const onSubmit = useCallback(() => {
-    dispatch(addPost(text));
-  }, [text]);
+    if (!text || !text.trim()) {
+      return alert('게시글을 작성하세요.');
+    }
+
+    const formData = new FormData(); // multer 배우는 입장에서 formdata를 써보는거임.
+    // json 형태로 보내도됨. image 가 없으면 form으로 하는건 매우 비효율적...^^
+    imagePaths.forEach((v) => {
+      formData.append('image', v);
+    });
+    formData.append('content', text);
+    return dispatch(addPost(formData));
+  }, [text, imagePaths]);
+
+  const onChangeImages = useCallback((e) => {
+    const { files } = e.target;
+    const imageFormData = new FormData();
+    [].forEach.call(files, (file) => {
+      imageFormData.append('image', file);
+    });
+    dispatch(uploadImages(imageFormData));
+  }, []);
+
+  const onRemoveImage = useCallback((index) => {
+    dispatch(removeImage(index));
+  });
 
   return (
     <Form
@@ -38,17 +61,32 @@ const PostForm = () => {
         placeholder="무슨 일이 있었나요?"
       />
       <div>
-        <input type="file" multiple hidden ref={imageInput} />
+        <input
+          type="file"
+          name="image"
+          multiple
+          hidden
+          ref={imageInput}
+          onChange={onChangeImages}
+          key={imagePaths} // 기존파일이랑 같은경우 onChange가 실행안됨. 강제 리렌더링시켜줌.
+        />
         <Button onClick={onClickImageUpload}>이미지 업로드</Button>
         <Button type="primary" style={{ float: 'right' }} htmlType="submit">
           짹짹
         </Button>
       </div>
       <div>
-        {imagePaths.map((v) => {
+        {imagePaths.map((v, i) => {
           return (
             <div key={v} style={{ display: 'inline-block' }}>
-              <img src={v} style={{ width: '200px' }} alt={v} />
+              <img
+                src={`http://localhost:3065/${v}`}
+                style={{ width: '200px' }}
+                alt={v}
+              />
+              <div>
+                <Button onClick={() => onRemoveImage(i)}>제거</Button>
+              </div>
             </div>
           );
         })}

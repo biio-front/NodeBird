@@ -2,13 +2,47 @@ const express = require('express');
 const { Post, Comment, User, Image } = require('../models');
 const { isLoggedIn } = require('./middlewares');
 const router = express.Router();
+const multer = require('multer');
+const { diskStorage } = require('multer');
+const path = require('path');  // 노드에서 제공하는 모듈
+const fs = require('fs');  // 파일 시스템을 조작할수있는 모듈
+try {
+  fs.accessSync('uploads');
+} catch (error) {
+  console.log('uploads 폴더가 없으므로 생성합니다.');
+  fs.mkdirSync('uploads');
+}
 
-router.post('/', async (req, res, next) => {
+const upload = multer({
+  storage: diskStorage({  // 어디에 저장할 것인가? 일단은 하드디스크
+    destination(req, file, done) {
+      done(null, 'uploads');   // 업로즈 폴더에...
+    },
+    filename(req, file, done) {  // 비오.png
+      const ext = path.extname(file.originalname);  //확장자 추출(png)
+      const basename = path.basename(file.originalname, ext); // 비오
+      done(null, basename + '_' + new Date().getTime() + ext); // 비오1234(시간초).png
+    }
+  }),
+  limits: { fileSize: 20 * 1024 * 1024 }, // 용량제한 20Mb
+});
+
+router.post('/', upload.none(), async (req, res, next) => {
   try {
     const post = await Post.create({
       content: req.body.content,
       UserId: req.user.id,
     });
+    if (req.body.image) {
+      if (Array.isArray(req.body.image)) { // 이미지를 여러개 올리면 배열
+        // 시퀄라이즈 모델에 만들어서 넣어줌. (파일 이름을 넣어줌.)
+        const image = await Promise.all(req.body.image.map(image => Image.create({ src: image }))); 
+        await post.addImages(image);
+      } else {  // 이미지를 하나 올리면 image: 비오.png
+        const image = await Image.create({ src: req.body.image });
+        await post.addImages(image); // 관계함수. post.addImages(Image테이블데이터) 혹은 post.addImages(Image id)
+      }
+    }
     const fullPost = await Post.findOne({
       where: { id: post.id },
       include: [{
@@ -29,6 +63,16 @@ router.post('/', async (req, res, next) => {
       }]
     })
     res.status(201).json(fullPost);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+router.post('/images', isLoggedIn, upload.array('image'), async (req, res, next) => { //POST /post/images
+  try {
+    console.log(req.files);
+    res.json(req.files.map(v => v.filename));
   } catch (error) {
     console.error(error);
     next(error);
