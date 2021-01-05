@@ -1,5 +1,5 @@
 const express = require('express');
-const { Post, Comment, User, Image } = require('../models');
+const { Post, Comment, User, Image, Hashtag } = require('../models');
 const { isLoggedIn } = require('./middlewares');
 const router = express.Router();
 const multer = require('multer');
@@ -29,10 +29,18 @@ const upload = multer({
 
 router.post('/', upload.none(), async (req, res, next) => {
   try {
+    const hashtags = req.body.content.match(/#[^\s#]+/g);
     const post = await Post.create({
       content: req.body.content,
       UserId: req.user.id,
     });
+    if (hashtags) {
+      // slice(1) 해서 #을 없애줌.
+      const result = await Promise.all(hashtags.map((tag) => Hashtag.findOrCreate({ 
+        where: { name: tag.slice(1).toLowerCase() },
+      }))); // findOrCreate는 [노드, true], [리액트, false] 이런식으로 반환.
+      await post.addHashtags(result.map(v => v[0]))
+    }
     if (req.body.image) {
       if (Array.isArray(req.body.image)) { // 이미지를 여러개 올리면 배열
         // 시퀄라이즈 모델에 만들어서 넣어줌. (파일 이름을 넣어줌.)
@@ -150,5 +158,72 @@ router.delete('/:postId/like', isLoggedIn, async (req, res, next) => {  // DELET
     next(error);
   }
 });
+
+router.post('/:postId/retweet', isLoggedIn, async (req, res, next) => {
+  try {
+    const post = await Post.findOne({ 
+      where: { id: parseInt(req.params.postId, 10) },
+      include: [{
+        model: Post,
+        as: 'Retwee',
+      }],
+    });
+    if (!post) {
+      return res.status(403).send('게시글이 존재하지 않습니다.');
+    }
+    // 내가쓴글 리트윗 못하게,  내 포스트를 리트윗한 포스트 리트윗 안되게.
+    if (req.user.id === post.UserId || (post.Retwee && post.Retwee.UserId === req.user.id)) {
+      return res.status(403).send('자신의 글을 리트윗할 수 없습니다.');
+    } 
+    const retweeTargetId = post.RetweeId || post.id; // 원포스트를 리트윗
+    // 내가 리트윗하려는 포스트를 이미 리트윗했었다면? ^^
+    const exPost = await Post.findOne({
+      where: {
+        UserId: req.user.id,
+        RetweeId: retweeTargetId,
+      }
+    });
+    if (exPost) {
+      return res.status(403).send('이미 리트윗했습니다.');
+    }
+    const retwee = await Post.create({
+      UserId: req.user.id,
+      RetweeId: retweeTargetId,
+      content: 'retwee',
+    });
+    const retweeWithPrevPost = await Post.findOne({
+      where: { id: retwee.id },
+      include: [{
+        model: Post,
+        as: 'Retwee',
+        include: [{
+          model: User,
+          attributes: ['id', 'nickname'],
+        }, {
+          model: Image,
+        }]
+      }, {
+        model: User,
+        attributes: ['id', 'nickname'],
+      }, {
+        model: Image,
+      }, {
+        model: Comment,
+        include: [{
+          model: User,
+          attributes: ['id', 'nickname'],
+        }]
+      }, {
+        model: User,
+        as: 'Likers',
+        attributes: ['id'],
+      }]
+    });
+    res.status(201).json(retweeWithPrevPost);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+})
 
 module.exports = router;

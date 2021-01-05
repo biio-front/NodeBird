@@ -8,9 +8,13 @@ import { loadMyInfo } from '../reducers/user';
 const Home = () => {
   const dispatch = useDispatch();
   const { isLoggedIn } = useSelector((state) => state.user);
-  const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector(
+  const { mainPosts, hasMorePosts, loadPostsLoading, retweetError } = useSelector(
     (state) => state.post,
   );
+
+  useEffect(() => {
+    retweetError && alert(retweetError);
+  }, [retweetError]);
 
   useEffect(() => {
     // 로그인한 사용자 정보 불러오기
@@ -25,7 +29,8 @@ const Home = () => {
       const { clientHeight, scrollHeight } = document.documentElement;
       if (scrollY + clientHeight > scrollHeight - 300) {
         if (hasMorePosts && !loadPostsLoading) {
-          dispatch(loadPosts());
+          const lastId = mainPosts[mainPosts.length - 1]?.id;
+          dispatch(loadPosts(lastId));
         }
       }
     }
@@ -33,7 +38,7 @@ const Home = () => {
     return () => {
       window.removeEventListener('scroll', onScroll);
     };
-  }, [hasMorePosts, loadPostsLoading]);
+  }, [hasMorePosts, loadPostsLoading, mainPosts]);
 
   return (
     <>

@@ -14,7 +14,7 @@ import Avatar from 'antd/lib/avatar/avatar';
 import PostImages from './PostImages';
 import CommentForm from './CommentForm';
 import PostCardContent from './PostCardContent';
-import { likePost, removePost, unlikePost } from '../reducers/post';
+import { likePost, removePost, retweet, unlikePost } from '../reducers/post';
 import FollowButton from './FollowButton';
 
 const PostCard = ({ post }) => {
@@ -27,23 +27,37 @@ const PostCard = ({ post }) => {
   const liked = post.Likers.find((v) => v === id);
   const postId = post.id;
 
-  const onToggleLike = useCallback(
-    () => dispatch(liked ? unlikePost(postId) : likePost(postId)),
-    [liked],
-  );
+  const onToggleLike = useCallback(() => {
+    if (!id) {
+      return alert('로그인이 필요합니다.');
+    }
+    return dispatch(liked ? unlikePost(postId) : likePost(postId));
+  }, [liked, id]);
   const onToggleComment = useCallback(() => {
-    setCommentFormOpen((prev) => !prev);
-  }, []);
+    if (!id) {
+      return alert('로그인이 필요합니다.');
+    }
+    return setCommentFormOpen((prev) => !prev);
+  }, [id]);
   const onDeletePost = useCallback(() => {
-    dispatch(removePost(postId));
-  }, []);
+    if (!id) {
+      return alert('로그인이 필요합니다.');
+    }
+    return dispatch(removePost(postId));
+  }, [id]);
+  const onRetweet = useCallback(() => {
+    if (!id) {
+      return alert('로그인이 필요합니다.');
+    }
+    return dispatch(retweet(postId));
+  }, [id]);
 
   return (
     <div>
       <Card
         cover={post.Images[0] && <PostImages images={post.Images} />}
         actions={[
-          <RetweetOutlined key="retweet" />,
+          <RetweetOutlined key="retweet" onClick={onRetweet} />,
           liked ? (
             <HeartTwoTone twoToneColor="#eb2f96" key="heart" onClick={onToggleLike} />
           ) : (
@@ -74,13 +88,24 @@ const PostCard = ({ post }) => {
             <EllipsisOutlined />
           </Popover>,
         ]}
+        title={post.Retwee ? `${post.User.nickname}님이 리트윗하셨습니다.` : null}
         extra={id && post.User.id !== id && <FollowButton post={post} />}
       >
-        <Card.Meta
-          avatar={<Avatar>{post.User.nickname[0]}</Avatar>}
-          title={post.User.nickname}
-          description={<PostCardContent postData={post.content} />}
-        />
+        {post.Retwee ? (
+          <Card cover={post.Retwee.Images[0] && <PostImages images={post.Images} />}>
+            <Card.Meta
+              avatar={<Avatar>{post.Retwee.User.nickname[0]}</Avatar>}
+              title={post.Retwee.User.nickname}
+              description={<PostCardContent postData={post.Retwee.content} />}
+            />
+          </Card>
+        ) : (
+          <Card.Meta
+            avatar={<Avatar>{post.User.nickname[0]}</Avatar>}
+            title={post.User.nickname}
+            description={<PostCardContent postData={post.content} />}
+          />
+        )}
       </Card>
       {commentFormOpen && (
         <>
@@ -123,6 +148,15 @@ PostCard.propTypes = {
     Images: PropTypes.arrayOf(PropTypes.object),
     Likers: PropTypes.array,
     createdAt: PropTypes.string,
+    Retwee: PropTypes.shape({
+      id: PropTypes.number,
+      User: PropTypes.shape({
+        id: PropTypes.number,
+        nickname: PropTypes.string,
+      }),
+      content: PropTypes.string,
+      Images: PropTypes.arrayOf(PropTypes.object),
+    }),
   }).isRequired,
 };
 
