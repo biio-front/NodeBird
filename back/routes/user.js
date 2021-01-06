@@ -1,11 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const { User } = require('../models');
+const { User, Post } = require('../models');
 const passport = require('passport');
 const db = require('../models');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
-const user = require('../models/user');
 
 router.get('/', async (req, res, next) => {
   try {
@@ -16,14 +15,14 @@ router.get('/', async (req, res, next) => {
           exclude: ['password'] ,
         },
         include: [{
-          model: db.Post,
+          model: Post,
           attributes: ['id'],
         }, {
-          model: db.User,
+          model: User,
           as: 'Followings',
           attributes: ['id'],
         }, {
-          model: db.User,
+          model: User,
           as: 'Followers', 
           attributes: ['id'],
         }]
@@ -51,7 +50,6 @@ router.post('/login', isNotLoggedIn, (req, res, next) => {
       if (loginErr) {
         console.err(loginErr);
         return next(loginErr);
-
       }
       const fullUserWithoutPassword = await User.findOne({
         where: { id: req.user.id },
@@ -177,6 +175,41 @@ router.get('/followings', isLoggedIn, async (req, res, next) => { //Get /user/fo
     const user = await User.findOne({ where: { id: req.user.id }}); // me
     const followings = await user.getFollowings({attributes: ['nickname', 'id']}); 
     res.status(200).json({ followings }); 
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+
+router.get('/:userId', async (req, res, next) => {
+  try {
+    const fullUserWithoutPassword = await User.findOne({
+      where: { id: req.params.userId },
+      attributes: {
+        exclude: ['password']
+      },
+      include: [{
+        model: Post,
+        attributes: ['id'],
+      }, {
+        model: User,
+        as: 'Followings',
+        attributes: ['id'],
+      }, {
+        model: User,
+        as: 'Followers',
+        attributes: ['id'],
+      }]
+    });
+    if (!fullUserWithoutPassword) {
+      return res.status(404).json('존재하지 않는 사용자입니다.');
+    }
+    const data = fullUserWithoutPassword.toJSON();
+    data.Posts = data.Posts.length;
+    data.Followings = data.Followings.length;
+    data.Followers = data.Followers.length;
+    res.status(200).json(data);
   } catch (error) {
     console.error(error);
     next(error);

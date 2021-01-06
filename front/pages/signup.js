@@ -4,13 +4,16 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import Router from 'next/router';
+import Axios from 'axios';
+import { END } from 'redux-saga';
 import useInput from '../hooks/useInput';
-import { signUpAction } from '../reducers/user';
+import { loadMyInfo, signUpAction } from '../reducers/user';
+import wrapper from '../store/configureStore';
 
 const ErrorMessage = styled.div`
   color: red;
 `;
-const signup = () => {
+const Signup = () => {
   const { signupLoading, signUpDone, signUpError, currentUser } = useSelector(
     (state) => state.user,
   );
@@ -126,4 +129,15 @@ const signup = () => {
   );
 };
 
-export default signup;
+// 화면을 그리기 전 서버쪽에서 먼저 실행
+export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
+  const cookie = context.req?.headers.cookie;
+  Axios.defaults.headers.Cookie = '';
+  if (context.req && cookie) {
+    Axios.defaults.headers.Cookie = cookie;
+  }
+  context.store.dispatch(loadMyInfo());
+  context.store.dispatch(END);
+  await context.store.sagaTask.toPromise();
+});
+export default Signup;

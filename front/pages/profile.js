@@ -6,7 +6,7 @@ import NicknameEditForm from '../components/NicknameEditForm';
 import FollowList from '../components/FollowList';
 import { loadFollowersAction, loadFollowingsAction } from '../reducers/user';
 
-const profile = () => {
+const Profile = () => {
   const { currentUser } = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
@@ -29,4 +29,4 @@ const profile = () => {
   );
 };
 
-export default profile;
+export default Profile;

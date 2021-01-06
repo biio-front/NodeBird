@@ -1,6 +1,12 @@
 import produce from 'immer';
 
 export const initialState = {
+  loadMyInfoLoading: false, // 내정보 가져오기 시도 중
+  loadMyInfoDone: false,
+  loadMyInfoError: null,
+  loadUserLoading: false, // 유저정보 가져오기 시도 중
+  loadUserDone: false,
+  loadUserError: null,
   loginLoading: false, // 로그인 시도 중
   isLoggedIn: false,
   loginError: null,
@@ -28,12 +34,16 @@ export const initialState = {
   loadFollowingsDone: false,
   loadFollowingsError: null,
   currentUser: null,
+  userInfo: null,
   signUpData: {},
   loginData: {},
 };
 export const LOAD_MY_INFO_REQUEST = 'LOAD_MY_INFO_REQUEST';
 export const LOAD_MY_INFO_SUCCESS = 'LOAD_MY_INFO_SUCCESS';
 export const LOAD_MY_INFO_FAILURE = 'LOAD_MY_INFO_FAILURE';
+export const LOAD_USER_REQUEST = 'LOAD_USER_REQUEST';
+export const LOAD_USER_SUCCESS = 'LOAD_USER_SUCCESS';
+export const LOAD_USER_FAILURE = 'LOAD_USER_FAILURE';
 export const LOG_IN_REQUEST = 'LOG_IN_REQUEST';
 export const LOG_IN_SUCCESS = 'LOG_IN_SUCCESS';
 export const LOG_IN_FAILURE = 'LOG_IN_FAILURE';
@@ -68,6 +78,10 @@ export const REMOVE_POST_OF_ME = 'REMOVE_POST_OF_ME';
 export const loadMyInfo = () => {
   return { type: LOAD_MY_INFO_REQUEST };
 };
+export const loadUser = (data) => ({
+  type: LOAD_USER_REQUEST,
+  data,
+});
 export const loginAction = (data) => {
   return {
     type: LOG_IN_REQUEST,
@@ -125,6 +139,22 @@ const reducer = (state = initialState, action) => {
       case LOAD_MY_INFO_FAILURE: {
         draft.loadMyInfoLoading = false;
         draft.loadMyInfoError = action.error;
+        break;
+      }
+      case LOAD_USER_REQUEST: {
+        draft.loadUserLoading = true;
+        draft.loadUserError = null;
+        break;
+      }
+      case LOAD_USER_SUCCESS: {
+        draft.loadUserLoading = false;
+        draft.loadUserDone = true;
+        draft.userInfo = action.data;
+        break;
+      }
+      case LOAD_USER_FAILURE: {
+        draft.loadUserLoading = false;
+        draft.loadUserError = action.error;
         break;
       }
       case LOG_IN_REQUEST: {
