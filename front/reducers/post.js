@@ -3,6 +3,7 @@ import produce from 'immer';
 export const initialState = {
   mainPosts: [],
   singlePost: [],
+  userPosts: [],
   imagePaths: [],
   hasMorePosts: true,
   loadPostLoading: false,
@@ -62,6 +63,12 @@ export const REMOVE_IMAGE = 'REMOVE_IMAGE';
 export const RETWEET_REQUEST = 'RETWEET_REQUEST';
 export const RETWEET_SUCCESS = 'RETWEET_SUCCESS';
 export const RETWEET_FAILURE = 'RETWEET_FAILURE';
+export const LOAD_USER_POSTS_REQUEST = 'LOAD_USER_POSTS_REQUEST';
+export const LOAD_USER_POSTS_SUCCESS = 'LOAD_USER_POSTS_SUCCESS';
+export const LOAD_USER_POSTS_FAILURE = 'LOAD_USER_POSTS_FAILURE';
+export const LOAD_HASHTAG_POSTS_REQUEST = 'LOAD_HASHTAG_POSTS_REQUEST';
+export const LOAD_HASHTAG_POSTS_SUCCESS = 'LOAD_HASHTAG_POSTS_SUCCESS';
+export const LOAD_HASHTAG_POSTS_FAILURE = 'LOAD_HASHTAG_POSTS_FAILURE';
 
 export const loadPost = (data) => ({
   type: LOAD_POST_REQUEST,
@@ -71,45 +78,47 @@ export const loadPosts = (data) => ({
   type: LOAD_POSTS_REQUEST,
   data,
 });
-
 export const addPost = (data) => ({
   type: ADD_POST_REQUEST,
   data,
 });
-
 export const removePost = (data) => ({
   type: REMOVE_POST_REQUEST,
   data,
 });
-
 export const addComment = (data) => ({
   type: ADD_COMMENT_REQUEST,
   data,
 });
-
 export const likePost = (data) => ({
   type: LIKE_POST_REQUEST,
   data,
 });
-
 export const unlikePost = (data) => ({
   type: UNLIKE_POST_REQUEST,
   data,
 });
-
 export const uploadImages = (data) => ({
   type: UPLOAD_IMAGES_REQUEST,
   data,
 });
-
 export const removeImage = (data) => ({
   type: REMOVE_IMAGE,
   data,
 });
-
 export const retweet = (data) => ({
   type: RETWEET_REQUEST,
   data,
+});
+export const loadUserPosts = (data, lastId) => ({
+  type: LOAD_USER_POSTS_REQUEST,
+  data,
+  lastId,
+});
+export const loadHashtagPosts = (data, lastId) => ({
+  type: LOAD_HASHTAG_POSTS_REQUEST,
+  data,
+  lastId,
 });
 
 const reducer = (state = initialState, action) => {
@@ -132,20 +141,26 @@ const reducer = (state = initialState, action) => {
         draft.loadPostError = action.error;
         break;
       }
-      case LOAD_POSTS_REQUEST: {
+      case LOAD_POSTS_REQUEST:
+      case LOAD_USER_POSTS_REQUEST:
+      case LOAD_HASHTAG_POSTS_REQUEST: {
         draft.loadPostsLoading = true;
         draft.loadPostsDone = false;
         draft.loadPostsError = null;
         break;
       }
-      case LOAD_POSTS_SUCCESS: {
+      case LOAD_POSTS_SUCCESS:
+      case LOAD_USER_POSTS_SUCCESS:
+      case LOAD_HASHTAG_POSTS_SUCCESS: {
         draft.mainPosts.push(...action.data);
         draft.hasMorePosts = action.data.length === 5;
         draft.loadPostsLoading = false;
         draft.loadPostsDone = true;
         break;
       }
-      case LOAD_POSTS_FAILURE: {
+      case LOAD_POSTS_FAILURE:
+      case LOAD_USER_POSTS_FAILURE:
+      case LOAD_HASHTAG_POSTS_FAILURE: {
         draft.loadPostsLoading = false;
         draft.loadPostsError = action.error;
         break;
@@ -270,7 +285,6 @@ const reducer = (state = initialState, action) => {
         draft.retweetLoading = false;
         draft.retweetDone = true;
         draft.mainPosts.unshift(action.data);
-        console.log(action.data);
         break;
       }
       case RETWEET_FAILURE: {

@@ -37,7 +37,6 @@ const Post = () => {
 };
 
 export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
-  console.log(context);
   const cookie = context.req?.headers.cookie;
   Axios.defaults.headers.Cookie = '';
   if (context.req && cookie) {

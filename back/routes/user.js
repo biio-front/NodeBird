@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const { User, Post } = require('../models');
+const { User, Post, Comment, Image } = require('../models');
+const { Op } = require('sequelize');
 const passport = require('passport');
-const db = require('../models');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 
 router.get('/', async (req, res, next) => {
@@ -57,14 +57,14 @@ router.post('/login', isNotLoggedIn, (req, res, next) => {
           exclude: ['password'] 
         },
         include: [{
-          model: db.Post,
+          model: Post,
           attributes: ['id'],
         }, {
-          model: db.User,
+          model: User,
           as: 'Followings',
           attributes: ['id'],
         }, {
-          model: db.User,
+          model: User,
           as: 'Followers', 
           attributes: ['id'],
         }] // 모델에서 as 사용했으면 똑같은 이름으로 as사용.
@@ -210,6 +210,52 @@ router.get('/:userId', async (req, res, next) => {
     data.Followings = data.Followings.length;
     data.Followers = data.Followers.length;
     res.status(200).json(data);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+router.get('/:userId/posts', async (req, res, next) => { // GET /user/userId?/posts/lastId=
+  try {
+    const where = { UserId: req.params.userId };
+    if (parseInt(req.query.lastId, 10)) { //초기로딩이 아닐경우(스크롤 후 로딩)
+      where.id = { [Op.lt]: parseInt(req.query.lastId, 10) }
+    } // Op.lt === id가 lastId보다 작은
+    const posts = await Post.findAll({
+      where,
+      limit: 5,
+      order: [
+        ['createdAt', 'DESC'],
+        [Comment, 'createdAt', 'DESC'],
+      ],
+      include: [{
+        model: User,
+        attributes: ['id', 'nickname'],
+      }, {
+        model: Image,
+      }, {
+        model: Comment,
+        include: [{
+          model: User,
+          attributes: ['id', 'nickname'],
+        }],
+      }, {
+        model: User,
+        as: 'Likers',
+        attributes: ['id'],
+      }, {
+        model: Post,
+        as: 'Retwee',
+        include: [{
+          model: User,
+          attributes: ['id', 'nickname'],
+        }, {
+          model: Image,
+        }],
+      }]
+    });
+    res.status(200).json(posts);
   } catch (error) {
     console.error(error);
     next(error);
