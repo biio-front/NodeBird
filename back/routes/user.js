@@ -162,8 +162,11 @@ router.delete('/follower/:userId', isLoggedIn, async (req, res, next) => {
 router.get('/followers', isLoggedIn, async (req, res, next) => { //Get /user/followers
   try {
     const user = await User.findOne({ where: { id: req.user.id }}); // me
-    const followers =  await user.getFollowers({attributes: ['nickname', 'id']}); 
-    res.status(200).json({ followers }); 
+    const followers =  await user.getFollowers({
+      attributes: ['nickname', 'id'],
+      limit: parseInt(req.query.limit, 10),
+    }); 
+    res.status(200).json(followers); 
   } catch (error) {
     console.error(error);
     next(error);
@@ -173,14 +176,16 @@ router.get('/followers', isLoggedIn, async (req, res, next) => { //Get /user/fol
 router.get('/followings', isLoggedIn, async (req, res, next) => { //Get /user/followings
   try {
     const user = await User.findOne({ where: { id: req.user.id }}); // me
-    const followings = await user.getFollowings({attributes: ['nickname', 'id']}); 
-    res.status(200).json({ followings }); 
+    const followings = await user.getFollowings({
+      attributes: ['nickname', 'id'],
+      limit: parseInt(req.query.limit, 10),
+    }); 
+    res.status(200).json(followings); 
   } catch (error) {
     console.error(error);
     next(error);
   }
 });
-
 
 router.get('/:userId', async (req, res, next) => {
   try {

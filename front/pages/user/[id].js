@@ -68,7 +68,7 @@ export const getServerSideProps = wrapper.getServerSideProps(async (context) => 
   }
   context.store.dispatch(loadMyInfo()); // 로그인한 사용자 정보 불러오기
   context.store.dispatch(loadUserPosts(context.params.id)); // 목록 불러오기
-  context.store.dispatch(loadUser(context.params.id)); // 해시태그 가져오기
+  context.store.dispatch(loadUser(context.params.id)); // 유저정보 가져오기
   context.store.dispatch(END);
   await context.store.sagaTask.toPromise();
 });

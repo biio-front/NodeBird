@@ -5,7 +5,7 @@ import { StopOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
 import { removeFollowerAction, unFollowAction } from '../reducers/user';
 
-const FollowList = ({ header, data }) => {
+const FollowList = ({ header, data, onClickMore, loading }) => {
   const dispatch = useDispatch();
 
   const onUnfollow = useCallback((id) => {
@@ -24,7 +24,9 @@ const FollowList = ({ header, data }) => {
       header={<div>{header}</div>}
       loadMore={
         <div style={{ textAlign: 'center', margin: '10px 0' }}>
-          <Button>더보기</Button>
+          <Button onClick={onClickMore} loading={loading}>
+            더보기
+          </Button>
         </div>
       }
       bordered
@@ -44,7 +46,9 @@ const FollowList = ({ header, data }) => {
 
 FollowList.propTypes = {
   header: PropTypes.string.isRequired,
-  data: PropTypes.array.isRequired,
+  data: PropTypes.array,
+  onClickMore: PropTypes.func.isRequired,
+  loading: PropTypes.bool,
 };
 
 export default FollowList;

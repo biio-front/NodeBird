@@ -1,32 +1,79 @@
 import Head from 'next/head';
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import Router from 'next/router';
+import useSWR from 'swr';
+import Axios from 'axios';
+import { END } from 'redux-saga';
 import NicknameEditForm from '../components/NicknameEditForm';
 import FollowList from '../components/FollowList';
-import { loadFollowersAction, loadFollowingsAction } from '../reducers/user';
+import wrapper from '../store/configureStore';
+import { loadMyInfo } from '../reducers/user';
+
+export const fetcher = (url) =>
+  Axios.get(url, { withCredentials: true }).then((result) => result.data);
 
 const Profile = () => {
   const { currentUser } = useSelector((state) => state.user);
-  const dispatch = useDispatch();
+  const [followersLimit, setFollowersLimit] = useState(3);
+  const [followingsLimit, setFollowingsLimit] = useState(3);
+
+  const { data: followersData, error: followerError } = useSWR(
+    `http://localhost:3065/user/followers?limit=${followersLimit}`,
+    fetcher,
+  );
+  const { data: followingsData, error: followingError } = useSWR(
+    `http://localhost:3065/user/followings?limit=${followingsLimit}`,
+    fetcher,
+  );
 
   useEffect(() => !currentUser?.id && Router.push('/'), [currentUser?.id]);
-  useEffect(() => {
-    dispatch(loadFollowersAction());
-    dispatch(loadFollowingsAction());
+
+  const loadMoreFollowings = useCallback(() => {
+    setFollowingsLimit((prev) => prev + 3);
+  }, []);
+  const loadMoreFollowers = useCallback(() => {
+    setFollowersLimit((prev) => prev + 3);
   }, []);
 
-  if (!currentUser) return null;
+  if (!currentUser) return <div>로그인이 필요합니다.</div>;
+  if (followerError || followingError) {
+    console.error(followerError || followingError);
+    return <div>팔로잉/팔로워 로딩 중 에러가 발생합니다.</div>;
+  }
   return (
     <>
       <Head>
         <title>내 프로필 | NodeBird</title>
       </Head>
       <NicknameEditForm />
-      <FollowList header="팔로잉 목록" data={currentUser.Followings} />
-      <FollowList header="팔로워 목록" data={currentUser.Followers} />
+      <FollowList
+        header="팔로잉 목록"
+        data={followingsData}
+        onClickMore={loadMoreFollowings}
+        loading={!followingsData && !followingError}
+      />
+      <FollowList
+        header="팔로워 목록"
+        data={followersData}
+        onClickMore={loadMoreFollowers}
+        loading={!followersData && !followerError}
+      />
     </>
   );
 };
 
+export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
+  console.log('getServerSideProps start-----------------------------------');
+  console.log(context.req.headers);
+
+  const cookie = context.req?.headers.cookie;
+  Axios.defaults.headers.Cookie = '';
+  if (context.req && cookie) {
+    Axios.defaults.headers.Cookie = cookie;
+  }
+  context.store.dispatch(loadMyInfo()); // 로그인한 사용자 정보 불러오기
+  context.store.dispatch(END);
+  await context.store.sagaTask.toPromise();
+});
 export default Profile;
