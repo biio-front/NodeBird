@@ -119,8 +119,6 @@ export const changeNicknameAction = (data) => ({
   type: CHANGE_NICKNAME_REQUEST,
   data,
 });
-// export const loadFollowersAction = () => ({ type: LOAD_FOLLOWERS_REQUEST });
-// export const loadFollowingsAction = () => ({ type: LOAD_FOLLOWINGS_REQUEST });
 
 const reducer = (state = initialState, action) => {
   return produce(state, (draft) => {
@@ -288,40 +286,6 @@ const reducer = (state = initialState, action) => {
         draft.removeFollowererError = action.error;
         break;
       }
-      // case LOAD_FOLLOWERS_REQUEST: {
-      //   draft.loadFollowersLoading = true;
-      //   draft.loadFollowersDone = false;
-      //   draft.loadFollowersError = null;
-      //   break;
-      // }
-      // case LOAD_FOLLOWERS_SUCCESS: {
-      //   draft.loadFollowersDone = true;
-      //   draft.loadFollowersLoading = false;
-      //   draft.currentUser.Followers = action.data.followers;
-      //   break;
-      // }
-      // case LOAD_FOLLOWERS_FAILURE: {
-      //   draft.loadFollowersLoading = false;
-      //   draft.loadFollowersError = action.error;
-      //   break;
-      // }
-      // case LOAD_FOLLOWINGS_REQUEST: {
-      //   draft.loadFollowingsLoading = true;
-      //   draft.loadFollowingsDone = false;
-      //   draft.loadFollowingsError = null;
-      //   break;
-      // }
-      // case LOAD_FOLLOWINGS_SUCCESS: {
-      //   draft.loadFollowingsDone = true;
-      //   draft.loadFollowingsLoading = false;
-      //   draft.currentUser.Followings = action.data.followings;
-      //   break;
-      // }
-      // case LOAD_FOLLOWINGS_FAILURE: {
-      //   draft.loadFollowingsLoading = false;
-      //   draft.loadFollowingsError = action.error;
-      //   break;
-      // }
       default:
         break;
     }

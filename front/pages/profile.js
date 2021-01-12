@@ -18,23 +18,31 @@ const Profile = () => {
   const [followersLimit, setFollowersLimit] = useState(3);
   const [followingsLimit, setFollowingsLimit] = useState(3);
 
-  const { data: followersData, error: followerError } = useSWR(
+  const { data: followersData, error: followerError, mutate: followerMutate } = useSWR(
     `http://localhost:3065/user/followers?limit=${followersLimit}`,
     fetcher,
   );
-  const { data: followingsData, error: followingError } = useSWR(
+  const { data: followingsData, error: followingError, mutate: followingMutate } = useSWR(
     `http://localhost:3065/user/followings?limit=${followingsLimit}`,
     fetcher,
   );
 
   useEffect(() => !currentUser?.id && Router.push('/'), [currentUser?.id]);
 
-  const loadMoreFollowings = useCallback(() => {
+  const loadMoreFollowings = useCallback(async () => {
     setFollowingsLimit((prev) => prev + 3);
   }, []);
   const loadMoreFollowers = useCallback(() => {
     setFollowersLimit((prev) => prev + 3);
   }, []);
+
+  useEffect(() => {
+    followingMutate();
+  }, [currentUser?.Followings]);
+
+  useEffect(() => {
+    followerMutate();
+  }, [currentUser?.Followers]);
 
   if (!currentUser) return <div>로그인이 필요합니다.</div>;
   if (followerError || followingError) {
