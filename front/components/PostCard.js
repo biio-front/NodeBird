@@ -12,11 +12,14 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import Avatar from 'antd/lib/avatar/avatar';
 import Link from 'next/link';
+import moment from 'moment';
 import PostImages from './PostImages';
 import CommentForm from './CommentForm';
 import PostCardContent from './PostCardContent';
 import { likePost, removePost, retweet, unlikePost } from '../reducers/post';
 import FollowButton from './FollowButton';
+
+moment.locale('ko');
 
 const PostCard = ({ post }) => {
   const { currentUser } = useSelector((state) => state.user);
@@ -93,7 +96,12 @@ const PostCard = ({ post }) => {
         extra={id && post.User.id !== id && <FollowButton post={post} />}
       >
         {post.Retwee ? (
-          <Card cover={post.Retwee.Images[0] && <PostImages images={post.Images} />}>
+          <Card
+            cover={post.Retwee.Images[0] && <PostImages images={post.Retwee.Images} />}
+          >
+            <div style={{ float: 'right' }}>
+              {moment(post.createdAt).format('YYYY.MM.DD')}
+            </div>
             <Card.Meta
               avatar={
                 <Link href={`/user/${post.Retwee.User.id}`}>
@@ -107,17 +115,20 @@ const PostCard = ({ post }) => {
             />
           </Card>
         ) : (
-          <Card.Meta
-            avatar={
-              <Link href={`/user/${post.User.id}`}>
-                <a>
-                  <Avatar>{post.User.nickname[0]}</Avatar>
-                </a>
-              </Link>
-            }
-            title={post.User.nickname}
-            description={<PostCardContent postData={post.content} />}
-          />
+          <>
+            <div style={{ float: 'right' }}>{moment(post.createdAt).fromNow()}</div>
+            <Card.Meta
+              avatar={
+                <Link href={`/user/${post.User.id}`}>
+                  <a>
+                    <Avatar>{post.User.nickname[0]}</Avatar>
+                  </a>
+                </Link>
+              }
+              title={post.User.nickname}
+              description={<PostCardContent postData={post.content} />}
+            />
+          </>
         )}
       </Card>
       {commentFormOpen && (
