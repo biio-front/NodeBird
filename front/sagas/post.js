@@ -239,13 +239,17 @@ function* uploadImages(action) {
 }
 
 function retweetAPI(data) {
-  return axios.get(`/post/${data}`); // GET /post/userId
+  return axios.post(`/post/${data}/retweet`); // POST /post/postId/retweet
 }
 function* retweet(action) {
   try {
     const result = yield call(retweetAPI, action.data);
     yield put({
       type: RETWEET_SUCCESS,
+      data: result.data,
+    });
+    yield put({
+      type: ADD_POST_TO_ME,
       data: result.data,
     });
   } catch (err) {
