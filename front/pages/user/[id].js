@@ -38,20 +38,27 @@ const User = () => {
 
   return (
     <>
-      <Head>
-        <title>{userInfo.nickname} 님의 글</title>
-        <meta name="description" content={`${userInfo.nickname.nickname}님의 게시글`} />
-        <meta property="og:title" content={`${userInfo.nickname.nickname}님의 게시글`} />
-        <meta
-          property="og:description"
-          content={`${userInfo.nickname.nickname}님의 게시글`}
-        />
-        <meta property="og:image" content="https://nodebird.com/favicon.ico" />
-        <meta property="og:title" content={`https://nodebird.com/post/${id}`} />
-      </Head>
-      {mainPosts.map((post) => (
-        <PostCard key={post.id} post={post} />
-      ))}
+      {userInfo && (
+        <Head>
+          <title>{userInfo.nickname} 님의 글</title>
+          <meta name="description" content={`${userInfo.nickname.nickname}님의 게시글`} />
+          <meta
+            property="og:title"
+            content={`${userInfo.nickname.nickname}님의 게시글`}
+          />
+          <meta
+            property="og:description"
+            content={`${userInfo.nickname.nickname}님의 게시글`}
+          />
+          <meta property="og:image" content="https://nodebird.com/favicon.ico" />
+          <meta property="og:title" content={`https://nodebird.com/post/${id}`} />
+        </Head>
+      )}
+      {mainPosts.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: 50 }}>작성된 게시글이 없습니다.</div>
+      ) : (
+        mainPosts.map((post) => <PostCard key={post.id} post={post} />)
+      )}
       {loadPostsLoading ? <div>Loading...</div> : null}
     </>
   );
