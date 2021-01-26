@@ -72,9 +72,6 @@ const Profile = () => {
 };
 
 export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
-  console.log('getServerSideProps start-----------------------------------');
-  console.log(context.req.headers);
-
   const cookie = context.req?.headers.cookie;
   Axios.defaults.headers.Cookie = '';
   if (context.req && cookie) {

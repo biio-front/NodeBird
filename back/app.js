@@ -19,24 +19,24 @@ dotenv.config();
 db.sequelize.sync()
 .then(() => console.log('db 연결 성공'))
 .catch(console.error);
-passportConfig();
+passportConfig(); // passport 설정
 
-app.use(morgan('dev'));
+app.use(morgan('dev')); // 로그남기는 미들웨어(morgan)
 app.use(cors({
   origin: 'http://localhost:3060',
   credentials: true
 }));
 app.use('/', express.static(path.join(__dirname, 'uploads')));
-app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.json()); // 바디 파서 설정
+app.use(express.urlencoded({extended: true})); // 바디 파서 설정
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(session({
-  saveUninitialized: false,
-  resave: false,
-  secret: process.env.COOKIE_SECRET,
+  saveUninitialized: false, // 세션 강제 저장
+  resave: false, // 빈 세션값 저장
+  secret: process.env.COOKIE_SECRET, // 쿠키 암호화
   cookie: {
-    httpOnly: true,
-    secure: false,
+    httpOnly: true, // httpOnly : 자바스크립트에서 쿠키 접근 금지
+    secure: false, // https 사용시 true
   }
 }));
 app.use(passport.initialize());
