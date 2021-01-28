@@ -7,7 +7,9 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {          // 두번째 객체는 유저모델에 대한 세팅
     charset: 'utf8mb4', // utf8은 한글, mb4를 같이 쓰면 이모티콘도 사용가능😊
-    collate: 'utf8mb4_general_ci'
+    collate: 'utf8mb4_general_ci',
+    modelName: 'Post',
+    tableName: 'posts',
   });
   Post.associate = (db) => {
     db.Post.belongsTo(db.User);  //post.addUser, post.setUser(게시글 작성자 수정하기)
