@@ -32,7 +32,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.use(cors({
-  origin: ['http://localhost:3060', 'http://13.125.127.221'],
+  origin: ['http://localhost:3060', 'http://biio-bird.ga'],
   credentials: true
 }));
 app.use('/', express.static(path.join(__dirname, 'uploads')));
@@ -46,6 +46,7 @@ app.use(session({
   cookie: {
     httpOnly: true, // httpOnly : 자바스크립트에서 쿠키 접근 금지
     secure: false, // https 사용시 true
+    domain: process.env.NODE_ENV === 'production' && '.biio-gird.ga'
   }
 }));
 app.use(passport.initialize());
