@@ -68,7 +68,8 @@ router.post('/login', isNotLoggedIn, (req, res, next) => {
           as: 'Followers', 
           attributes: ['id'],
         }] // 모델에서 as 사용했으면 똑같은 이름으로 as사용.
-      })
+      });
+      console.log('유저정보', fullUserWithoutPassword);
       return res.status(200).json(fullUserWithoutPassword);
     })
   })(req, res, next);

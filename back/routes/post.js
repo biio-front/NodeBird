@@ -27,7 +27,7 @@ const upload = multer({
   limits: { fileSize: 20 * 1024 * 1024 }, // 용량제한 20Mb
 });
 
-router.post('/', upload.none(), async (req, res, next) => {
+router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
   try {
     const hashtags = req.body.content.match(/#[^\s#]+/g);
     const post = await Post.create({

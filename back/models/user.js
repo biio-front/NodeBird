@@ -2,7 +2,6 @@ module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     email: {
       type: DataTypes.STRING(30), //문자열이 30글자 이내  STRING< TEXT(긴글), BOOLEAN, INTGER(정수), FLOAT(실수), DATETIME(시간)
-      allowNull: false, //필수
       unique: true, //고유한 값
     },
     nickname: {
@@ -12,6 +11,10 @@ module.exports = (sequelize, DataTypes) => {
     password: {
       type: DataTypes.STRING(100),  //비밀번호는 암호화를 하면 길이가 엄청 늘어남!
       allowNull: false
+    },
+    kakaoId: {
+      type: DataTypes.INTEGER ,
+      unique: true,
     }
   }, {
     charset: 'utf8',
