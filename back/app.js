@@ -46,7 +46,7 @@ app.use(session({
   cookie: {
     httpOnly: true, // httpOnly : 자바스크립트에서 쿠키 접근 금지
     secure: false, // https 사용시 true
-    domain: process.env.NODE_ENV === 'production' && '.biio-gird.ga'
+    domain: process.env.NODE_ENV === 'production' && '.biio-bird.ga'
   }
 }));
 app.use(passport.initialize());
