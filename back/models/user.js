@@ -12,10 +12,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(100),  //비밀번호는 암호화를 하면 길이가 엄청 늘어남!
       allowNull: false
     },
-    kakaoId: {
-      type: DataTypes.INTEGER ,
-      unique: true,
-    }
   }, {
     charset: 'utf8',
     collate: 'utf8_general_ci',
