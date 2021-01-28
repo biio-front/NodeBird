@@ -21,7 +21,7 @@ db.sequelize.sync()
 .catch(console.error);
 passportConfig(); // passport 설정
 
-if (proccess.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production') {
   app.use(morgan('combined')); // 쟈세한 로그 기록 (접속자 ip까지 보여줌)
   app.use(hpp()); // 보안을 위해서 필요함
   app.use(helmet());
@@ -40,7 +40,7 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(session({
   saveUninitialized: false, // 세션 강제 저장
   resave: false, // 빈 세션값 저장
-  secret: proccess.env.COOKIE_SECRET, // 쿠키 암호화
+  secret: process.env.COOKIE_SECRET, // 쿠키 암호화
   cookie: {
     httpOnly: true, // httpOnly : 자바스크립트에서 쿠키 접근 금지
     secure: false, // https 사용시 true
