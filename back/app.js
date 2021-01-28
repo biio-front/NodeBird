@@ -40,7 +40,7 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(session({
   saveUninitialized: false, // 세션 강제 저장
   resave: false, // 빈 세션값 저장
-  secret: process.env.COOKIE_SECRET, // 쿠키 암호화
+  secret: proccess.env.COOKIE_SECRET, // 쿠키 암호화
   cookie: {
     httpOnly: true, // httpOnly : 자바스크립트에서 쿠키 접근 금지
     secure: false, // https 사용시 true
