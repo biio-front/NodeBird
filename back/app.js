@@ -21,7 +21,14 @@ db.sequelize.sync()
 .catch(console.error);
 passportConfig(); // passport 설정
 
-app.use(morgan('dev')); // 로그남기는 미들웨어(morgan)
+if (proccess.env.NODE_ENV === 'production') {
+  app.use(morgan('combined')); // 쟈세한 로그 기록 (접속자 ip까지 보여줌)
+  app.use(hpp()); // 보안을 위해서 필요함
+  app.use(helmet());
+} else {
+  app.use(morgan('dev')); // 로그남기는 미들웨어(morgan)
+}
+
 app.use(cors({
   origin: 'http://localhost:3060',
   credentials: true
