@@ -26,7 +26,7 @@ const upload = multer({
     s3: new AWS.S3(),
     bucket: 'biio-nodebird',
     key(req, file, cb) {
-      cb(null, `original/${Data.now()} ${path.basename(file.originalname)}`) //original폴더/파일이름
+      cb(null, `original/${Date.now()} ${path.basename(file.originalname)}`) //original폴더/파일이름
     }
   }),
   limits: { fileSize: 20 * 1024 * 1024 }, // 용량제한 20Mb
