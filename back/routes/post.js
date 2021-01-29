@@ -23,7 +23,7 @@ AWS.config.update({
 });
 const upload = multer({
   storage: multerS3({
-    s3: new AWS.s3(),
+    s3: new AWS.S3(),
     bucket: 'biio-nodebird',
     key(req, file, cb) {
       cb(null, `original/${Data.now()} ${path.basename(file.originalname)}`) //original폴더/파일이름
