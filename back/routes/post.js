@@ -98,7 +98,7 @@ router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
 router.post('/images', isLoggedIn, upload.array('image'), async (req, res, next) => { //POST /post/images
   try {
     console.log(req.files);
-    res.json(req.files.map(v => v.location));
+    res.json(req.files.map(v => v.location)); // location에 주소자체가 들어있음.
     // res.json(req.files.map(v => v.filename));
   } catch (error) {
     console.error(error);
