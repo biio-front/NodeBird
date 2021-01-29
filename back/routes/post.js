@@ -98,7 +98,8 @@ router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
 router.post('/images', isLoggedIn, upload.array('image'), async (req, res, next) => { //POST /post/images
   try {
     console.log(req.files);
-    res.json(req.files.map(v => v.location)); // location에 주소자체가 들어있음.
+    res.json(req.files.map(v => v.location.replace(/\/origin\//, '/thumb/'))); 
+    // location에 주소자체가 들어있음. 주소에 origin이있으면 thumb로 바꿔줌. 원본대신 리사이징 된 이미지 가져오기.
     // res.json(req.files.map(v => v.filename));
   } catch (error) {
     console.error(error);
