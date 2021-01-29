@@ -6,6 +6,9 @@ const multer = require('multer');
 const { diskStorage } = require('multer');
 const path = require('path');  // 노드에서 제공하는 모듈
 const fs = require('fs');  // 파일 시스템을 조작할수있는 모듈
+const multerS3 = require('multer-s3');
+const AWS = require('aws-sdk');
+
 try {
   fs.accessSync('uploads');
 } catch (error) {
@@ -13,20 +16,35 @@ try {
   fs.mkdirSync('uploads');
 }
 
+AWS.config.update({
+  accessKeyId: process.env.S3_ACCESS_KEY_ID,
+  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+  region: 'ap-northeast-2',
+});
 const upload = multer({
-  storage: diskStorage({  // 어디에 저장할 것인가? 일단은 하드디스크
-    destination(req, file, done) {
-      done(null, 'uploads');   // 업로즈 폴더에...
-    },
-    filename(req, file, done) {  // 비오.png
-      const ext = path.extname(file.originalname);  //확장자 추출(png)
-      const basename = path.basename(file.originalname, ext); // 비오
-      done(null, basename + '_' + new Date().getTime() + ext); // 비오1234(시간초).png
+  storage: multerS3({
+    s3: new AWS.s3(),
+    bucket: 'biio-nodebird',
+    key(req, file, cb) {
+      cb(null, `original/${Data.now()} ${path.basename(file.originalname)}`) //original폴더/파일이름
     }
   }),
   limits: { fileSize: 20 * 1024 * 1024 }, // 용량제한 20Mb
 });
 
+// const upload = multer({
+//   storage: diskStorage({  // 어디에 저장할 것인가? 일단은 하드디스크
+//     destination(req, file, done) {
+//       done(null, 'uploads');   // 업로즈 폴더에...
+//     },
+//     filename(req, file, done) {  // 비오.png
+//       const ext = path.extname(file.originalname);  //확장자 추출(png)
+//       const basename = path.basename(file.originalname, ext); // 비오
+//       done(null, basename + '_' + new Date().getTime() + ext); // 비오1234(시간초).png
+//     }
+//   }),
+//   limits: { fileSize: 20 * 1024 * 1024 }, // 용량제한 20Mb
+// });
 router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
   try {
     const hashtags = req.body.content.match(/#[^\s#]+/g);
@@ -80,7 +98,8 @@ router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
 router.post('/images', isLoggedIn, upload.array('image'), async (req, res, next) => { //POST /post/images
   try {
     console.log(req.files);
-    res.json(req.files.map(v => v.filename));
+    res.json(req.files.map(v => v.location));
+    // res.json(req.files.map(v => v.filename));
   } catch (error) {
     console.error(error);
     next(error);
